@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "281743315364",
+    "project_id": "emartbd-d8f39",
+    "storage_bucket": "emartbd-d8f39.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:281743315364:android:c570287cfcabf92b027131",
+        "android_client_info": {
+          "package_name": "org.abdsoft.emartbd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "281743315364-mk1540otgoi8plmudsukk2oinli2k26m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5257CPs1joUS1jzRJxZmxWWXJJGdHoiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "281743315364-mk1540otgoi8plmudsukk2oinli2k26m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
