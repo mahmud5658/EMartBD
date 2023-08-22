@@ -23,6 +23,12 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".MainUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainSellerActivity"
+            android:exported="false" />
+        <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity
@@ -43,7 +49,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
