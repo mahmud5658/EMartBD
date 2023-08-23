@@ -38,17 +38,18 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user==null){
+                if (user == null) {
                     // user not login activity
                     startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                     finish();
-                }else{
+                } else {
                     // user is login check user type
                     checkUserType();
                 }
             }
         }, 1000);
     }
+
     private void checkUserType() {
 //        if user is seller, start seller main screen
 //       if user is buyer, start buyer main screen
@@ -58,15 +59,15 @@ public class SplashActivity extends AppCompatActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for(DataSnapshot ds: snapshot.getChildren()){
-                            String accountType = ""+ds.child("accountType").getValue();
-                            if(accountType.equals("Seller")){
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            String accountType = "" + ds.child("accountType").getValue();
+                            if (accountType.equals("Seller")) {
                                 // user is seller
-                                startActivity(new Intent(SplashActivity.this,MainSellerActivity.class));
+                                startActivity(new Intent(SplashActivity.this, MainSellerActivity.class));
                                 finish();
-                            }else{
+                            } else {
                                 // user is buyer
-                                startActivity(new Intent(SplashActivity.this,MainUserActivity.class));
+                                startActivity(new Intent(SplashActivity.this, MainUserActivity.class));
                                 finish();
 
                             }

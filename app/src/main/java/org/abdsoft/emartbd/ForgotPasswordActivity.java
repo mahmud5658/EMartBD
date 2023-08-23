@@ -57,7 +57,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void recoverPassword() {
         email = emailEt.getText().toString().trim();
-        if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Invalid Email...", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -70,7 +70,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     public void onSuccess(Void unused) {
                         // instruction send
                         progressDialog.dismiss();
-                        Toast.makeText(ForgotPasswordActivity.this, "Password reset instructions sent to your email", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ForgotPasswordActivity.this, "Password reset instructions sent to your email...", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

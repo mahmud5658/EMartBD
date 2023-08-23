@@ -110,9 +110,6 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         progressDialog.setCanceledOnTouchOutside(false);
 
 
-
-        
-
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,7 +151,9 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             }
         });
     }
-    private String fullName,phoneNumber,country,state,city,address,email,password,confirmPassword;
+
+    private String fullName, phoneNumber, country, state, city, address, email, password, confirmPassword;
+
     private void inputData() {
         // input data
         fullName = nameEt.getText().toString().trim();
@@ -168,29 +167,29 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         confirmPassword = cpasswordEt.getText().toString().trim();
 
         // validate data
-        if (TextUtils.isEmpty(fullName)){
+        if (TextUtils.isEmpty(fullName)) {
             Toast.makeText(this, "Enter name...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(phoneNumber)){
+        if (TextUtils.isEmpty(phoneNumber)) {
             Toast.makeText(this, "Enter Phone number...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (latitude==0.0 || longitude ==0){
+        if (latitude == 0.0 || longitude == 0) {
             Toast.makeText(this, "Please click GPS button to detect location...", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Invalid email pattern...", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (password.length()<6){
+        if (password.length() < 6) {
             Toast.makeText(this, "Password must be 6 characters long... ", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!password.equals(confirmPassword)){
+        if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Password doesn't match...", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -202,7 +201,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         progressDialog.show();
 
         // create account
-        firebaseAuth.createUserWithEmailAndPassword(email,password)
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
@@ -215,15 +214,15 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                     public void onFailure(@NonNull Exception e) {
                         //failed creating account
                         progressDialog.dismiss();
-                        Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterUserActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void saverFirebaseData() {
         progressDialog.setMessage("Saving Account Info...");
-        String timestamp = ""+System.currentTimeMillis();
-        if(image_uri==null){
+        String timestamp = "" + System.currentTimeMillis();
+        if (image_uri == null) {
             //sava info without image
 
             // setUp data to save
@@ -238,7 +237,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             hashMap.put("latitude", "" + latitude);
             hashMap.put("longitude", "" + longitude);
             hashMap.put("timestamp", "" + timestamp);
-            hashMap.put("AccountType", "Seller");
+            hashMap.put("AccountType", "User");
             hashMap.put("online", "true");
             hashMap.put("profileImage", "");
 
@@ -249,23 +248,23 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                         public void onSuccess(Void unused) {
                             // data base updated
                             progressDialog.dismiss();
-                            startActivity(new Intent(RegisterUserActivity.this,MainUserActivity.class));
+                            startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
                             finish();
                         }
-                    }) .addOnFailureListener(new OnFailureListener() {
+                    }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             // failed updating database
                             progressDialog.dismiss();
-                            startActivity(new Intent(RegisterUserActivity.this,MainUserActivity.class));
+                            startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
                             finish();
                         }
                     });
 
-        }else{
+        } else {
             // save information with image
             // name and path of image
-            String filePathAndName = "profile_image/"+""+firebaseAuth.getUid();
+            String filePathAndName = "profile_image/" + "" + firebaseAuth.getUid();
             // upload image
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(filePathAndName);
             storageReference.putFile(image_uri)
@@ -274,53 +273,52 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             // get url of uploaded image
                             Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while(!uriTask.isSuccessful()){
-                                Uri downloadImageUri = uriTask.getResult();
-                                if(uriTask.isSuccessful()){
-                                    // setUp data to save
-                                    HashMap<String, Object> hashMap = new HashMap<>();
-                                    hashMap.put("uid", "" + firebaseAuth.getUid());
-                                    hashMap.put("email", "" + email);
-                                    hashMap.put("phoneNumber", "" + phoneNumber);
-                                    hashMap.put("country", "" + country);
-                                    hashMap.put("state", "" + state);
-                                    hashMap.put("city", "" + city);
-                                    hashMap.put("address", "" + address);
-                                    hashMap.put("latitude", "" + latitude);
-                                    hashMap.put("longitude", "" + longitude);
-                                    hashMap.put("timestamp", "" + timestamp);
-                                    hashMap.put("AccountType", "Seller");
-                                    hashMap.put("online", "true");
-                                    hashMap.put("shopOpen", "true");
-                                    hashMap.put("profileImage", ""+downloadImageUri); // uri of upload image
+                            while (!uriTask.isSuccessful()) ;
+                            Uri downloadImageUri = uriTask.getResult();
+                            if (uriTask.isSuccessful()) {
+                                // setUp data to save
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("uid", "" + firebaseAuth.getUid());
+                                hashMap.put("email", "" + email);
+                                hashMap.put("phoneNumber", "" + phoneNumber);
+                                hashMap.put("country", "" + country);
+                                hashMap.put("state", "" + state);
+                                hashMap.put("city", "" + city);
+                                hashMap.put("address", "" + address);
+                                hashMap.put("latitude", "" + latitude);
+                                hashMap.put("longitude", "" + longitude);
+                                hashMap.put("timestamp", "" + timestamp);
+                                hashMap.put("accountType", "User");
+                                hashMap.put("online", "true");
+                                hashMap.put("profileImage", "" + downloadImageUri); // uri of upload image
 
-                                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-                                    reference.child(firebaseAuth.getUid()).setValue(hashMap)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    // data base updated
-                                                    progressDialog.dismiss();
-                                                    startActivity(new Intent(RegisterUserActivity.this,MainUserActivity.class));
-                                                    finish();
-                                                }
-                                            }) .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    // failed updating database
-                                                    progressDialog.dismiss();
-                                                    startActivity(new Intent(RegisterUserActivity.this,MainUserActivity.class));
-                                                    finish();
-                                                }
-                                            });
-                                }
+                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+                                reference.child(firebaseAuth.getUid()).setValue(hashMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                // data base updated
+                                                progressDialog.dismiss();
+                                                startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                                                finish();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                // failed updating database
+                                                progressDialog.dismiss();
+                                                startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                                                finish();
+                                            }
+                                        });
                             }
+
                         }
-                    }) .addOnFailureListener(new OnFailureListener() {
+                    }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterUserActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -333,6 +331,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
+
     private void findAddress() {
         // find address country state,city
         Geocoder geocoder;
@@ -354,6 +353,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             Toast.makeText(this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
     private boolean checkLocationPermission() {
 
         boolean result = ContextCompat.checkSelfPermission(this,
@@ -440,8 +440,6 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
     }
 
 
-
-
     private boolean checkStoragePermission() {
         boolean result = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
@@ -470,7 +468,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && data!=null) {
+        if (resultCode == RESULT_OK && data != null) {
             if (requestCode == IMAGE_PICK_GALLERY_CODE) {
                 //get picked image
                 image_uri = data.getData();
@@ -479,17 +477,18 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
 
             } else if (requestCode == IMAGE_PICK_CAMERA_CODE) {
                 // set to image view
-                image_bitmap =  (Bitmap) (data.getExtras().get("data"));
+                image_bitmap = (Bitmap) (data.getExtras().get("data"));
                 profileIv.setImageBitmap(image_bitmap);
             }
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case LOCATION_REQUEST_CODE: {
                 boolean locationAccepted = false;
-                if (grantResults.length >0) {
+                if (grantResults.length > 0) {
                     locationAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     if (locationAccepted) {
                         //permission allowed

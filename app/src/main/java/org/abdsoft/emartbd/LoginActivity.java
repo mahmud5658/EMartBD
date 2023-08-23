@@ -72,23 +72,24 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-    private String email,password;
+
+    private String email, password;
 
     private void loginUser() {
         email = emailEt.getText().toString().trim();
         password = passwordEt.getText().toString().trim();
-        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Invalid email pattern...", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(TextUtils.isEmpty(password)){
+        if (TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Enter password...", Toast.LENGTH_SHORT).show();
             return;
         }
         progressDialog.setMessage("Logging In...");
         progressDialog.show();
 
-        firebaseAuth.signInWithEmailAndPassword(email,password)
+        firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
@@ -100,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
                         //failed login
                         progressDialog.dismiss();
-                        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -108,8 +109,8 @@ public class LoginActivity extends AppCompatActivity {
     private void MakeMeOnline() {
         // after logging in, make user online
         progressDialog.setMessage("Checking User...");
-        HashMap<String,Object> hashMap = new HashMap<>();
-        hashMap.put("online","true");
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("online", "true");
 
         // update value to database
 
@@ -121,12 +122,12 @@ public class LoginActivity extends AppCompatActivity {
                         //update successfully
                         checkUserType();
                     }
-                }) .addOnFailureListener(new OnFailureListener() {
+                }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         // failed updating
                         progressDialog.dismiss();
-                        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -140,16 +141,16 @@ public class LoginActivity extends AppCompatActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for(DataSnapshot ds: snapshot.getChildren()){
-                            String accountType = ""+ds.child("accountType").getValue();
-                            if(accountType.equals("Seller")){
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            String accountType = "" + ds.child("accountType").getValue();
+                            if (accountType.equals("Seller")) {
                                 progressDialog.dismiss();
                                 // user is seller
-                                startActivity(new Intent(LoginActivity.this,MainSellerActivity.class));
+                                startActivity(new Intent(LoginActivity.this, MainSellerActivity.class));
                                 finish();
-                            }else{
+                            } else {
                                 // user is buyer
-                                startActivity(new Intent(LoginActivity.this,MainUserActivity.class));
+                                startActivity(new Intent(LoginActivity.this, MainUserActivity.class));
                                 finish();
 
                             }
