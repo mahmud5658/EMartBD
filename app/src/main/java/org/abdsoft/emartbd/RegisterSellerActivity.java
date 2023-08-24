@@ -228,6 +228,7 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("uid", "" + firebaseAuth.getUid());
             hashMap.put("email", "" + email);
+            hashMap.put("name", "" + fullName);
             hashMap.put("shopName", "" + shopName);
             hashMap.put("phoneNumber", "" + phoneNumber);
             hashMap.put("deliveryFee", "" + deliveryFee);
@@ -284,6 +285,7 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                                 HashMap<String, Object> hashMap = new HashMap<>();
                                 hashMap.put("uid", "" + firebaseAuth.getUid());
                                 hashMap.put("email", "" + email);
+                                hashMap.put("name", "" + fullName);
                                 hashMap.put("shopName", "" + shopName);
                                 hashMap.put("phoneNumber", "" + phoneNumber);
                                 hashMap.put("deliveryFee", "" + deliveryFee);

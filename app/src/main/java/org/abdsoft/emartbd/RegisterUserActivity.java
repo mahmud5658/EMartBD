@@ -229,6 +229,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("uid", "" + firebaseAuth.getUid());
             hashMap.put("email", "" + email);
+            hashMap.put("name", "" + fullName);
             hashMap.put("phoneNumber", "" + phoneNumber);
             hashMap.put("country", "" + country);
             hashMap.put("state", "" + state);
@@ -280,6 +281,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                                 HashMap<String, Object> hashMap = new HashMap<>();
                                 hashMap.put("uid", "" + firebaseAuth.getUid());
                                 hashMap.put("email", "" + email);
+                                hashMap.put("name", "" + fullName);
                                 hashMap.put("phoneNumber", "" + phoneNumber);
                                 hashMap.put("country", "" + country);
                                 hashMap.put("state", "" + state);
