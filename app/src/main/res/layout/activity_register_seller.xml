@@ -133,12 +133,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/deliveryFeeEt"
-                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/countryEt"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
@@ -150,7 +149,7 @@
 
                 <EditText
                     android:id="@+id/stateEt"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
@@ -162,7 +161,7 @@
 
                 <EditText
                     android:id="@+id/cityEt"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:layout_weight="1"

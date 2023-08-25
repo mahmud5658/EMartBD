@@ -487,6 +487,8 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                 // set to image view
                 image_bitmap = (Bitmap) (data.getExtras().get("data"));
                 profileIv.setImageBitmap(image_bitmap);
+//                image_uri = data.getData();
+//                profileIv.setImageURI(image_uri);
             }
         }
     }

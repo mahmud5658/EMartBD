@@ -20,7 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 public class MainUserActivity extends AppCompatActivity {
 
     private TextView nameTv;
-    private ImageButton logoutBtn;
+    private ImageButton logoutBtn,editProfileBtn;
 
     private FirebaseAuth firebaseAuth;
 
@@ -31,6 +31,7 @@ public class MainUserActivity extends AppCompatActivity {
 
         nameTv = findViewById(R.id.nameTv);
         logoutBtn = findViewById(R.id.logoutBtn);
+        editProfileBtn = findViewById(R.id.editProfileBtn);
         firebaseAuth = FirebaseAuth.getInstance();
 
         checkUser();
@@ -40,6 +41,13 @@ public class MainUserActivity extends AppCompatActivity {
             public void onClick(View v) {
                 firebaseAuth.signOut();
                 checkUser();
+            }
+        });
+        editProfileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // open edit profile activity
+                startActivity(new Intent(MainUserActivity.this,ProfileEditUserActivity.class));
             }
         });
     }
