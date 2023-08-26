@@ -2,6 +2,7 @@ package org.abdsoft.emartbd;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,14 +11,18 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,6 +64,9 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
     private double latitude = 0.0;
     private double longitude = 0.0;
 
+    private Uri image_uri;
+    private Bitmap image_bitmap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +104,14 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
             }
         });
 
+        profileIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // pick image
+                showImagePickDialog();
+            }
+        });
+
         gpsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,8 +133,73 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         });
     }
 
+    private void showImagePickDialog() {
+        // options to display in dialog
+        String[] options = {"Camera", "Gallery"};
+        // dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pick Image").setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    // camera clicked
+                    if (checkCameraPermission()) {
+                        // allow, open camera
+                        pickFromCamera();
+                    } else {
+                        // not allow, request for permission camera permission
+                        requestCameraPermission();
+                    }
+                } else {
+                    // gallery clicked
+                    if (checkStoragePermission()) {
+                        // allow, open gallery
+                        pickFromGallery();
+                    } else {
+                        // not allow, request for storage permission
+                        requestStoragePermission();
+                    }
+                }
+            }
+        }).show();
+    }
+    private boolean checkCameraPermission() {
+        boolean result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA)==(PackageManager.PERMISSION_GRANTED);
+        boolean result1 = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)==(PackageManager.PERMISSION_GRANTED);
+        return result && result1;
+    }
+
+    private boolean checkStoragePermission() {
+        boolean result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(this,cameraPermission,CAMERA_REQUEST_CODE);
+    }
+
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(this,storagePermission,STORAGE_REQUEST_CODE);
+    }
+
     private void requestLocationPermissions() {
         ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_REQUEST_CODE);
+    }
+
+    private void pickFromCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent,IMAGE_PICK_CAMERA_CODE);
+    }
+
+    private void pickFromGallery() {
+        // intent to pick from gallery
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent,IMAGE_PICK_GALLERY_CODE);
+
     }
 
     @SuppressLint("MissingPermission")
@@ -185,10 +266,36 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
                 if (grantResults.length > 0) {
                     boolean locationAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     if (locationAccepted) {
-                        //  permission allow
+                        // permission allow
                         detectLocation();
                     } else {
-                        Toast.makeText(this, "Location Permission is necessary...", Toast.LENGTH_SHORT).show();
+                        // permission denied
+                        Toast.makeText(this, "Location permission is necessary...", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            case CAMERA_REQUEST_CODE:{
+                if(grantResults.length>0){
+                    boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean storageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if(cameraAccepted && storageAccepted){
+                        // permission allow, pick from camera
+                        pickFromCamera();
+                    }else{
+                        // permission denied
+                        Toast.makeText(this, "Camera Permissions are necessary...", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            case STORAGE_REQUEST_CODE:{
+                if(grantResults.length>0){
+                    boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if(storageAccepted){
+                        // permission allow, pick from gallery
+                        pickFromGallery();
+                    }else{
+                        // permission denied
+                        Toast.makeText(this, "Storage Permission is necessary...", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -196,8 +303,18 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(resultCode == RESULT_OK && data!= null){
+            if(requestCode == IMAGE_PICK_GALLERY_CODE){
+                //get picked image
+                image_uri = data.getData();
+                // set to image view
+                profileIv.setImageURI(image_uri);
+            }else if(requestCode == IMAGE_PICK_CAMERA_CODE){
+                image_bitmap = (Bitmap) (data.getExtras().get("data"));
+                profileIv.setImageBitmap(image_bitmap);
+            }
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 }

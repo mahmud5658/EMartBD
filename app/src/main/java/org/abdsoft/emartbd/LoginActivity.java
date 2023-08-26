@@ -149,18 +149,21 @@ public class LoginActivity extends AppCompatActivity {
                                 // user is seller
                                 startActivity(new Intent(LoginActivity.this, MainSellerActivity.class));
                                 finish();
-                            } else {
+                            } else if(accountType.equals("User")){
+                                progressDialog.dismiss();
                                 // user is buyer
                                 startActivity(new Intent(LoginActivity.this, MainUserActivity.class));
                                 finish();
-
+                            }else{
+                                progressDialog.dismiss();
+                                Toast.makeText(LoginActivity.this, "Something went wrong..", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
+                        Toast.makeText(LoginActivity.this, "Database error..", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

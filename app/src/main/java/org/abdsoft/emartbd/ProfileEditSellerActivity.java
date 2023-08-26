@@ -2,6 +2,7 @@ package org.abdsoft.emartbd;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
@@ -10,15 +11,20 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +34,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,8 +42,7 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
 
     private ImageButton backBtn, gpsBtn;
     private ImageView profileIv;
-    private EditText nameEt, shopNameEt, phoneEt, deliveryFeeEt, countryEt, stateEt,
-            cityEt, addressEt;
+    private EditText nameEt, shopNameEt, phoneEt, deliveryFeeEt, countryEt, stateEt, cityEt, addressEt;
     private SwitchCompat shopOpenSwitch;
     private Button updateBtn;
 
@@ -56,8 +62,11 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
     private String[] storagePermission;
 
     private LocationManager locationManager;
-    private double latitude =0.0;
+    private double latitude = 0.0;
     private double longitude = 0.0;
+
+    private Uri image_uri;
+    private Bitmap image_bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,14 +106,22 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
             }
         });
 
+        profileIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // pick image
+                showImagePickDialog();
+            }
+        });
+
         gpsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // detect location
-                if(checkLocationPermission()){
+                if (checkLocationPermission()) {
                     // already allow
                     detectLocation();
-                }else{
+                } else {
                     // not allow, request
                     requestLocationPermission();
                 }
@@ -119,25 +136,88 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
         });
     }
 
+    private void showImagePickDialog() {
+        // options to display in dialog
+        String[] options = {"Camera", "Gallery"};
+        // dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pick Image").setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    // camera clicked
+                    if (checkCameraPermission()) {
+                        // allow, open camera
+                        pickFromCamera();
+                    } else {
+                        // not allow, request for permission camera permission
+                        requestCameraPermission();
+                    }
+                } else {
+                    // gallery clicked
+                    if (checkStoragePermission()) {
+                        // allow, open gallery
+                        pickFromGallery();
+                    } else {
+                        // not allow, request for storage permission
+                        requestStoragePermission();
+                    }
+                }
+            }
+        }).show();
+    }
+
+    private boolean checkCameraPermission() {
+        boolean result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA)==(PackageManager.PERMISSION_GRANTED);
+        boolean result1 = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)==(PackageManager.PERMISSION_GRANTED);
+        return result && result1;
+    }
+
+    private boolean checkStoragePermission() {
+        boolean result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+    private boolean checkLocationPermission() {
+        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+
+    private void pickFromCamera() {
+       Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+       startActivityForResult(intent,IMAGE_PICK_CAMERA_CODE);
+    }
+
+    private void pickFromGallery() {
+        // intent to pick from gallery
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent,IMAGE_PICK_GALLERY_CODE);
+
+    }
+
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(this,cameraPermission,CAMERA_REQUEST_CODE);
+    }
+
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(this,storagePermission,STORAGE_REQUEST_CODE);
+    }
+
     private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this,locationPermissions,LOCATION_REQUEST_CODE);
+        ActivityCompat.requestPermissions(this, locationPermissions, LOCATION_REQUEST_CODE);
     }
 
     @SuppressLint("MissingPermission")
     private void detectLocation() {
         Toast.makeText(this, "Please wait", Toast.LENGTH_SHORT).show();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
 
-    private boolean checkLocationPermission() {
-        boolean result = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) ==
-                (PackageManager.PERMISSION_GRANTED);
-
-        return result;
-    }
-    public void findAddress(){
+    public void findAddress() {
         // find address country state,city
         Geocoder geocoder;
         List<Address> addresses;
@@ -185,16 +265,41 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case LOCATION_REQUEST_CODE:{
-                if(grantResults.length>0){
+        switch (requestCode) {
+            case LOCATION_REQUEST_CODE: {
+                if (grantResults.length > 0) {
                     boolean locationAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if(locationAccepted){
+                    if (locationAccepted) {
                         // permission allow
                         detectLocation();
-                    }else{
+                    } else {
                         // permission denied
                         Toast.makeText(this, "Location permission is necessary...", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            case CAMERA_REQUEST_CODE:{
+                if(grantResults.length>0){
+                    boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean storageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if(cameraAccepted && storageAccepted){
+                        // permission allow, pick from camera
+                        pickFromCamera();
+                    }else{
+                        // permission denied
+                        Toast.makeText(this, "Camera Permissions are necessary...", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            case STORAGE_REQUEST_CODE:{
+                if(grantResults.length>0){
+                    boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if(storageAccepted){
+                        // permission allow, pick from gallery
+                       pickFromGallery();
+                    }else{
+                        // permission denied
+                        Toast.makeText(this, "Storage Permission is necessary...", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -204,6 +309,17 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(resultCode == RESULT_OK && data!= null){
+            if(requestCode == IMAGE_PICK_GALLERY_CODE){
+                //get picked image
+                image_uri = data.getData();
+                // set to image view
+                profileIv.setImageURI(image_uri);
+            }else if(requestCode == IMAGE_PICK_CAMERA_CODE){
+                image_bitmap = (Bitmap) (data.getExtras().get("data"));
+                profileIv.setImageBitmap(image_bitmap);
+            }
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 }
