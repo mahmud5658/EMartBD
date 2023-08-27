@@ -108,7 +108,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="5dp"
         android:background="@drawable/shape_rect02"
-        android:drawableStart="@drawable/ic_store_gray"
+        android:drawableStart="@drawable/ic_local_shiping_gray"
         android:drawablePadding="5dp"
         android:hint="Delivery Fee"
         android:inputType="textPersonName|textCapWords"
@@ -183,7 +183,7 @@
         android:drawableStart="@drawable/ic_location_gray"
         android:drawablePadding="5dp"
         android:hint="Address"
-        android:inputType="textPostalAddress"
+        android:inputType="textPostalAddress|textMultiLine"
         android:padding="10dp" />
 
     <androidx.appcompat.widget.SwitchCompat

@@ -30,10 +30,25 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class ProfileEditUserActivity extends AppCompatActivity implements LocationListener {
 
@@ -94,6 +109,7 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         progressDialog.setCanceledOnTouchOutside(false);
 
         firebaseAuth = FirebaseAuth.getInstance();
+        checkUser();
 
 
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -129,8 +145,157 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
             @Override
             public void onClick(View v) {
                 //begin update profile
+                inputData();
             }
         });
+    }
+
+    private String name,phone,country,state,city,address;
+    private void inputData() {
+        name = nameEt.getText().toString().trim();
+        phone = phoneEt.getText().toString().trim();
+        country = countryEt.getText().toString().trim();
+        state = stateEt.getText().toString().trim();
+        city = cityEt.getText().toString().trim();
+        address = addressEt.getText().toString().trim();
+
+        updateProfile();
+    }
+    private void updateProfile() {
+        progressDialog.setMessage("Updating profile...");
+        progressDialog.show();
+        if(image_uri==null){
+            // update without image
+            // setup to data to update
+            HashMap<String,Object> hashMap = new HashMap<>();
+            hashMap.put("name",""+name);
+            hashMap.put("phone",""+phone);
+            hashMap.put("country",""+country);
+            hashMap.put("state",""+state);
+            hashMap.put("city",""+city);
+            hashMap.put("address",""+address);
+            hashMap.put("latitude",""+latitude);
+            hashMap.put("longitude",""+longitude);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+            databaseReference.child(Objects.requireNonNull(firebaseAuth.getUid())).updateChildren(hashMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProfileEditUserActivity.this, "Profile updated...", Toast.LENGTH_SHORT).show();
+                        }
+                    }) .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }else {
+            // update with image
+            String filepathAndName = "profile_image/"+""+firebaseAuth.getUid();
+
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(filepathAndName);
+            storageReference.putFile(image_uri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                            while(!uriTask.isSuccessful());
+                            Uri downloadImageUrl = uriTask.getResult();
+                            if(uriTask.isSuccessful()){
+                                // image url receive, now update database
+                                // setup to data to update
+                                HashMap<String,Object> hashMap = new HashMap<>();
+                                hashMap.put("name",""+name);
+                                hashMap.put("phone",""+phone);
+                                hashMap.put("country",""+country);
+                                hashMap.put("state",""+state);
+                                hashMap.put("city",""+city);
+                                hashMap.put("address",""+address);
+                                hashMap.put("latitude",""+latitude);
+                                hashMap.put("longitude",""+longitude);
+                                hashMap.put("profileImage",""+downloadImageUrl);
+                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+                                databaseReference.child(Objects.requireNonNull(firebaseAuth.getUid())).updateChildren(hashMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(ProfileEditUserActivity.this, "Profile updated...", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }) .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+
+                            }
+                        }
+                    }) .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        }
+    }
+
+    private void checkUser() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if(user==null){
+            startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+            finish();
+        }else{
+            loadUserInfo();
+        }
+    }
+
+    private void loadUserInfo() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.orderByChild("uid").equalTo(firebaseAuth.getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for(DataSnapshot ds: snapshot.getChildren()){
+                            String accountType =""+ds.child("accountType").getValue();
+                            String address = ""+ds.child("address").getValue();
+                            String city = ""+ds.child("city").getValue();
+                            String state = ""+ds.child("state").getValue();
+                            String country = ""+ds.child("country").getValue();
+                            String phone = ""+ds.child("phone").getValue();
+                            String name = ""+ds.child("name").getValue();
+                            latitude = Double.parseDouble(""+ds.child("latitude").getValue());
+                            longitude = Double.parseDouble(""+ds.child("longitude").getValue());
+                            String timestamp = ""+ds.child("timestamp").getValue();
+                            String profileImage = ""+ds.child("profileImage").getValue();
+                            String online = ""+ds.child("online").getValue();
+                            String email = ""+ds.child("email").getValue();
+                            String uid = ""+ds.child("uid").getValue();
+                            nameEt.setText(name);
+                            phoneEt.setText(phone);
+                            countryEt.setText(country);
+                            stateEt.setText(state);
+                            cityEt.setText(city);
+                            addressEt.setText(address);
+                            try {
+                                Picasso.get().load(profileImage).placeholder(R.drawable.ic_person_gray).into(profileIv);
+
+                            }catch (Exception e){
+                                profileIv.setImageResource(R.drawable.ic_person_gray);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
     private void showImagePickDialog() {

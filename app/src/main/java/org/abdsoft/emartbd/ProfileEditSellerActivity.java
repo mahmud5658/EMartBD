@@ -24,6 +24,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
@@ -32,11 +33,26 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class ProfileEditSellerActivity extends AppCompatActivity implements LocationListener {
 
@@ -98,6 +114,15 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
 
         firebaseAuth = FirebaseAuth.getInstance();
 
+        checkUser();
+
+//        new Handler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//                checkUser();
+//            }
+//        });
+
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,8 +157,184 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
             @Override
             public void onClick(View v) {
                 //begin update profile
+                inputData();
             }
         });
+    }
+
+    private String fullName,shopName,phoneNumber,deliveryFee,country,state,city,address;
+    private boolean shopOpen;
+
+    private void inputData() {
+        fullName = nameEt.getText().toString().trim();
+        shopName = shopNameEt.getText().toString().trim();
+        phoneNumber = phoneEt.getText().toString().trim();
+        deliveryFee = deliveryFeeEt.getText().toString().trim();
+        country = countryEt.getText().toString().trim();
+        state = stateEt.getText().toString().trim();
+        city = cityEt.getText().toString().trim();
+        address = addressEt.getText().toString().trim();
+        shopOpen = shopOpenSwitch.isChecked();
+        
+        updateProfile();
+    }
+
+    private void updateProfile() {
+        progressDialog.setMessage("Updating profile...");
+        progressDialog.show();
+        if(image_uri==null){
+            // update without image
+            // setup to data to update
+            HashMap<String,Object> hashMap = new HashMap<>();
+            hashMap.put("name",""+fullName);
+            hashMap.put("shopName",""+shopName);
+            hashMap.put("phone",""+phoneNumber);
+            hashMap.put("deliveryFee",""+deliveryFee);
+            hashMap.put("country",""+country);
+            hashMap.put("state",""+state);
+            hashMap.put("city",""+city);
+            hashMap.put("address",""+address);
+            hashMap.put("latitude",""+latitude);
+            hashMap.put("longitude",""+longitude);
+            hashMap.put("shopOpen",""+shopOpen);
+            hashMap.put("profileImage", "");
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+            databaseReference.child(Objects.requireNonNull(firebaseAuth.getUid())).updateChildren(hashMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProfileEditSellerActivity.this, "Profile updated...", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    }) .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProfileEditSellerActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
+        }else {
+            // update with image
+            String filepathAndName = "profile_image/"+""+firebaseAuth.getUid();
+
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(filepathAndName);
+            storageReference.putFile(image_uri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                            while(!uriTask.isSuccessful());
+                            Uri downloadImageUrl = uriTask.getResult();
+                            if(uriTask.isSuccessful()){
+                                // image url receive, now update database
+                                // setup to data to update
+                                HashMap<String,Object> hashMap = new HashMap<>();
+                                hashMap.put("name",""+fullName);
+                                hashMap.put("shopName",""+shopName);
+                                hashMap.put("phone",""+phoneNumber);
+                                hashMap.put("deliveryFee",""+deliveryFee);
+                                hashMap.put("country",""+country);
+                                hashMap.put("state",""+state);
+                                hashMap.put("city",""+city);
+                                hashMap.put("address",""+address);
+                                hashMap.put("latitude",""+latitude);
+                                hashMap.put("longitude",""+longitude);
+                                hashMap.put("shopOpen",""+shopOpen);
+                                hashMap.put("profileImage",""+downloadImageUrl);
+                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+                                databaseReference.child(Objects.requireNonNull(firebaseAuth.getUid())).updateChildren(hashMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(ProfileEditSellerActivity.this, "Profile updated...", Toast.LENGTH_SHORT).show();
+                                                finish();
+                                            }
+                                        }) .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(ProfileEditSellerActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                finish();
+                                            }
+                                        });
+
+                            }
+                        }
+                    }) .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProfileEditSellerActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        }
+    }
+
+    private void checkUser() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if(user==null){
+            startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+            finish();
+        }else{
+            loadUserInfo();
+        }
+    }
+
+    private void loadUserInfo() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.orderByChild("uid").equalTo(firebaseAuth.getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for(DataSnapshot ds: snapshot.getChildren()){
+                            String accountType =""+ds.child("accountType").getValue().toString();
+                            String address = ""+ds.child("address").getValue().toString();
+                            String city = ""+ds.child("city").getValue().toString();
+                            String state = ""+ds.child("state").getValue().toString();
+                            String country = ""+ds.child("country").getValue().toString();
+                            String deliveryFee = ""+ds.child("deliveryFee").getValue().toString();
+                            String phoneNumber = ""+ds.child("phone").getValue().toString();
+                            String shopName = ""+ds.child("shopName").getValue().toString();
+                            String name = ""+ds.child("name").getValue().toString();
+                            latitude = Double.parseDouble(""+ds.child("latitude").getValue());
+                            longitude = Double.parseDouble(""+ds.child("longitude").getValue());
+                            String timestamp = ""+ds.child("timestamp").getValue().toString();
+                            String profileImage = ""+ds.child("profileImage").getValue().toString();
+                            String shopOpen = ""+ds.child("shopOpen").getValue().toString();
+                            String online = ""+ds.child("online").getValue().toString();
+                            String email = ""+ds.child("email").getValue().toString();
+                            String uid = ""+ds.child("uid").getValue().toString();
+                            nameEt.setText(name);
+                            shopNameEt.setText(shopName);
+                            phoneEt.setText(phoneNumber);
+                            deliveryFeeEt.setText(deliveryFee);
+                            countryEt.setText(country);
+                            stateEt.setText(state);
+                            cityEt.setText(city);
+                            addressEt.setText(address);
+                            if(shopOpen.equals("true")){
+                                shopOpenSwitch.setChecked(true);
+                            }else{
+                                shopOpenSwitch.setChecked(false);
+                            }
+                            try {
+                                Picasso.get().load(profileImage).placeholder(R.drawable.ic_store_gray).into(profileIv);
+
+                            }catch (Exception e){
+                                profileIv.setImageResource(R.drawable.ic_person_gray);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
     private void showImagePickDialog() {

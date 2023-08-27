@@ -151,12 +151,12 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         });
     }
 
-    private String fullName, phoneNumber, country, state, city, address, email, password, confirmPassword;
+    private String name, phone, country, state, city, address, email, password, confirmPassword;
 
     private void inputData() {
         // input data
-        fullName = nameEt.getText().toString().trim();
-        phoneNumber = phoneEt.getText().toString().trim();
+        name = nameEt.getText().toString().trim();
+        phone = phoneEt.getText().toString().trim();
         country = countryEt.getText().toString().trim();
         state = stateEt.getText().toString().trim();
         city = cityEt.getText().toString().trim();
@@ -166,12 +166,12 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         confirmPassword = cpasswordEt.getText().toString().trim();
 
         // validate data
-        if (TextUtils.isEmpty(fullName)) {
+        if (TextUtils.isEmpty(name)) {
             Toast.makeText(this, "Enter name...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(phoneNumber)) {
+        if (TextUtils.isEmpty(phone)) {
             Toast.makeText(this, "Enter Phone number...", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -228,8 +228,8 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("uid", "" + firebaseAuth.getUid());
             hashMap.put("email", "" + email);
-            hashMap.put("name", "" + fullName);
-            hashMap.put("phoneNumber", "" + phoneNumber);
+            hashMap.put("name", "" + name);
+            hashMap.put("phone", "" + phone);
             hashMap.put("country", "" + country);
             hashMap.put("state", "" + state);
             hashMap.put("city", "" + city);
@@ -280,8 +280,8 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                                 HashMap<String, Object> hashMap = new HashMap<>();
                                 hashMap.put("uid", "" + firebaseAuth.getUid());
                                 hashMap.put("email", "" + email);
-                                hashMap.put("name", "" + fullName);
-                                hashMap.put("phoneNumber", "" + phoneNumber);
+                                hashMap.put("name", "" + name);
+                                hashMap.put("phoneNumber", "" + phone);
                                 hashMap.put("country", "" + country);
                                 hashMap.put("state", "" + state);
                                 hashMap.put("city", "" + city);

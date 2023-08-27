@@ -151,7 +151,7 @@
         android:drawableStart="@drawable/ic_phone_gray"
         android:drawablePadding="5dp"
         android:hint="Address"
-        android:inputType="textPostalAddress"
+        android:inputType="textPostalAddress|textMultiLine"
         android:padding="10dp" />
 
     <Button
