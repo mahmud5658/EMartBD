@@ -183,12 +183,14 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
                         public void onSuccess(Void unused) {
                             progressDialog.dismiss();
                             Toast.makeText(ProfileEditUserActivity.this, "Profile updated...", Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     }) .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
                             Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     });
         }else {

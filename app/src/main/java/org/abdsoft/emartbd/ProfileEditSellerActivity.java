@@ -116,13 +116,6 @@ public class ProfileEditSellerActivity extends AppCompatActivity implements Loca
 
         checkUser();
 
-//        new Handler().post(new Runnable() {
-//            @Override
-//            public void run() {
-//                checkUser();
-//            }
-//        });
-
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
