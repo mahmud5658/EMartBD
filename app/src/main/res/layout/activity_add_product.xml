@@ -159,7 +159,7 @@
             android:drawableStart="@drawable/ic_cart_gray"
             android:drawablePadding="10dp"
             android:hint="Discount Note e.g. 10% off"
-            android:inputType="numberDecimal"
+            android:inputType="textCapSentences|textMultiLine"
             android:padding="10dp" />
 
         <Button

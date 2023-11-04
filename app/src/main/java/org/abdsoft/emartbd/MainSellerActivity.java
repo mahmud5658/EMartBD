@@ -91,7 +91,7 @@ public class MainSellerActivity extends AppCompatActivity {
                             String shopName = "" + ds.child("shopName").getValue();
                             String profileImage = "" + ds.child("profileImage").getValue();
                             // set data to ui
-                            nameTv.setText(name + "(" + accountType + ")");
+                            nameTv.setText(name);
                             shopNameIv.setText(shopName);
                             emailTv.setText(email);
                             try {

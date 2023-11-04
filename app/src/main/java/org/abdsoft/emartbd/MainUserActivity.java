@@ -71,7 +71,7 @@ public class MainUserActivity extends AppCompatActivity {
                         for (DataSnapshot ds : snapshot.getChildren()) {
                             String name = "" + ds.child("name").getValue();
                             String accountType = "" + ds.child("accountType").getValue();
-                            nameTv.setText(name + "(" + accountType + ")");
+                            nameTv.setText(name);
                         }
                     }
 

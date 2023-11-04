@@ -434,31 +434,25 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                 })
                 .show();
     }
-
     private void pickFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, IMAGE_PICK_GALLERY_CODE);
 
     }
-
     private void pickFromCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(cameraIntent, IMAGE_PICK_CAMERA_CODE);
     }
-
-
     private boolean checkStoragePermission() {
         boolean result = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                 (PackageManager.PERMISSION_GRANTED);
         return result;
     }
-
     private void requestStoragePermission() {
         ActivityCompat.requestPermissions(this, storagePermission, STORAGE_REQUEST_CODE);
     }
-
     private boolean checkCameraPermission() {
         boolean result = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA) ==
@@ -468,11 +462,9 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                 (PackageManager.PERMISSION_GRANTED);
         return result && result1;
     }
-
     private void requestCameraPermission() {
         ActivityCompat.requestPermissions(this, cameraPermission, CAMERA_REQUEST_CODE);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -492,7 +484,6 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
             }
         }
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -541,5 +532,4 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
 }
