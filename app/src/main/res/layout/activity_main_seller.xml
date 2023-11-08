@@ -7,6 +7,7 @@
     tools:context=".MainSellerActivity">
 
     <RelativeLayout
+        android:id="@+id/toolBarRl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_rect01"
@@ -53,7 +54,6 @@
             android:text="Name"
             android:textColor="@color/colorWhite"
             android:textStyle="bold" />
-
         <TextView
             android:id="@+id/shopNameIv"
             android:layout_width="wrap_content"
@@ -63,7 +63,6 @@
             android:text="Shop Name"
             android:textColor="@color/colorWhite"
             android:textStyle="bold" />
-
         <TextView
             android:id="@+id/emailTv"
             android:layout_width="wrap_content"
@@ -73,6 +72,44 @@
             android:text="Email"
             android:textColor="@color/colorWhite"
             android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@id/profileIv"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/shape_rect03"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tabProductTv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/shape_rect04"
+                android:gravity="center"
+                android:text="Products"
+                android:textColor="@color/colorBlack" />
+            <TextView
+                android:id="@+id/tabOrderTv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Orders"
+                android:textColor="@color/colorBlack" />
+        </LinearLayout>
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/productsRl"
+        android:layout_below="@id/toolBarRl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/ordersRl"
+        android:layout_below="@id/toolBarRl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </RelativeLayout>
 </RelativeLayout>

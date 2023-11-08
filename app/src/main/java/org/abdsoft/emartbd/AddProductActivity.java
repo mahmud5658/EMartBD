@@ -201,6 +201,7 @@ public class AddProductActivity extends AppCompatActivity {
             hashMap.put("discountPrice",""+discountPrice);
             hashMap.put("discountNote",""+discountNote);
             hashMap.put("discountAvailable",""+discountAvailable);
+            hashMap.put("timestamp",""+timestamp);
             hashMap.put("uid",""+firebaseAuth.getUid());
 
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
@@ -242,6 +243,7 @@ public class AddProductActivity extends AppCompatActivity {
                                 hashMap.put("discountPrice",""+discountPrice);
                                 hashMap.put("discountNote",""+discountNote);
                                 hashMap.put("discountAvailable",""+discountAvailable);
+                                hashMap.put("timestamp",""+timestamp);
                                 hashMap.put("uid",""+firebaseAuth.getUid());
 
                                 DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
